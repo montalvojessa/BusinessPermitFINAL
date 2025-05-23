@@ -16,6 +16,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import LoginPage.LoginForm;
+import java.awt.Image;
+import java.io.File;
 
 /**
  *
@@ -119,15 +121,25 @@ public class adminDashboard extends javax.swing.JFrame {
             String imagePath = rs.getString("u_image");
 
             if (imagePath != null && !imagePath.isEmpty()) {
-                ImageIcon icon = new ImageIcon(imagePath);
-                u_image.setIcon(icon);
+                String projectDir = System.getProperty("user.dir");
+                String absoluteImagePath = projectDir + File.separator + imagePath;
+
+                System.out.println("Loading image from: " + absoluteImagePath);  // Debug print
+
+                ImageIcon icon = new ImageIcon(absoluteImagePath);
+                Image img = icon.getImage();
+                Image scaledImg = img.getScaledInstance(u_image.getWidth(), u_image.getHeight(), Image.SCALE_SMOOTH);
+                u_image.setIcon(new ImageIcon(scaledImg));
+            } else {
+                u_image.setIcon(null);  // Clear icon if no image path
             }
         }
     } catch (SQLException e) {
-        e.printStackTrace(); // Log the error
+        e.printStackTrace();
         JOptionPane.showMessageDialog(this, "Error loading profile image: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
-}   
+}
+
 
     
     /**
@@ -368,6 +380,7 @@ public class adminDashboard extends javax.swing.JFrame {
            acc_id.setText("" + sess.getUid());
        }  
          loadLogs();
+         loadUserProfile();
 // TODO add your handling code here:
     }//GEN-LAST:event_formWindowActivated
 

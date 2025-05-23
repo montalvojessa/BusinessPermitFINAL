@@ -8,6 +8,7 @@ package users;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
 
@@ -45,26 +46,52 @@ public class BusinessFillUp extends javax.swing.JFrame {
     try (Connection conn = DriverManager.getConnection(
             "jdbc:mysql://localhost:3306/businesspermit_db", "root", "")) {
 
+        // Validate against actual user info
+        String userQuery = "SELECT u_username, u_fname, u_lname FROM tbl_users WHERE u_id = ?";
+        try (PreparedStatement userStmt = conn.prepareStatement(userQuery)) {
+            userStmt.setInt(1, currentUserId);  // Your session-based user ID
+            ResultSet rs = userStmt.executeQuery();
+
+            if (rs.next()) {
+                String dbUsername = rs.getString("u_username").trim();
+                String dbFirstname = rs.getString("u_fname").trim();
+                String dbLastname = rs.getString("u_lname").trim();
+
+                if (!username.equalsIgnoreCase(dbUsername) || 
+                    !firstname.equalsIgnoreCase(dbFirstname) || 
+                    !lastname.equalsIgnoreCase(dbLastname)) {
+                    JOptionPane.showMessageDialog(this, "Invalid user information. Please make sure your username, first name, and last name are correct.");
+                    return;
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "User not found.");
+                return;
+            }
+        }
+
+        // Proceed with submission
         String sql = "INSERT INTO applications (u_id, username, firstname, lastname, business_name, business_type, barangay_clearance_no) " +
                      "VALUES (?, ?, ?, ?, ?, ?, ?)";
-        PreparedStatement stmt = conn.prepareStatement(sql);
-        stmt.setInt(1, currentUserId);  // <-- your valid user id here
-        stmt.setString(2, username);
-        stmt.setString(3, firstname);
-        stmt.setString(4, lastname);
-        stmt.setString(5, businessName);
-        stmt.setString(6, businessType);
-        stmt.setString(7, clearanceNo);
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, currentUserId);
+            stmt.setString(2, username);
+            stmt.setString(3, firstname);
+            stmt.setString(4, lastname);
+            stmt.setString(5, businessName);
+            stmt.setString(6, businessType);
+            stmt.setString(7, clearanceNo);
 
-        stmt.executeUpdate();
-        JOptionPane.showMessageDialog(this, "Application submitted successfully!");
-        this.dispose();
+            stmt.executeUpdate();
+            JOptionPane.showMessageDialog(this, "Application submitted successfully!");
+            this.dispose();
+        }
 
     } catch (SQLException ex) {
         ex.printStackTrace();
         JOptionPane.showMessageDialog(this, "Error submitting application.");
     }
 }
+
 
 
 

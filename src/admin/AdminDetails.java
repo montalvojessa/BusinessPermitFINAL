@@ -252,7 +252,6 @@ public class AdminDetails extends javax.swing.JFrame {
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         u_image.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        u_image.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/search.png"))); // NOI18N
         jPanel2.add(u_image, new org.netbeans.lib.awtextra.AbsoluteConstraints(11, 6, 260, 140));
 
         jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 120, 280, 180));
